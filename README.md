@@ -1,4 +1,4 @@
-# sshconf-stream
+# sshconf-stream [![Build Status](https://travis-ci.org/hughsk/sshconf-stream.png?branch=master)](https://travis-ci.org/hughsk/sshconf-stream)
 
 Magic-free streaming SSH config parser/stringifier.
 
