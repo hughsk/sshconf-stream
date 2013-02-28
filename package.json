@@ -1,0 +1,31 @@
+{
+  "name": "sshconf-stream",
+  "version": "0.0.1",
+  "description": "Magic-free streaming SSH config parser/stringifier",
+  "main": "index.js",
+  "dependencies": {
+    "shell-quote": "~0.0.1",
+    "split": "~0.2.1",
+    "stream-combiner": "~0.0.1",
+    "through": "~2.2.0"
+  },
+  "devDependencies": {
+    "tape": "~0.2.2",
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hughsk/sshconf-stream.git"
+  },
+  "keywords": [
+    "ssh",
+    "configuration",
+    "stream",
+    "parse",
+    "stringify"
+  ],
+  "author": "Hugh Kennedy <hughskennedy@gmail.com> (http://hughskennedy.com/)",
+  "license": "MIT"
+}
