@@ -7,9 +7,9 @@ function createParseStream() {
   var stream
     , queued = {}
 
-  function handle(host) {
-    if (!host || !Object.keys(host).length) return
-    stream.queue(host)
+  function handle(chunk) {
+    if (!chunk || !Object.keys(chunk).length) return
+    stream.queue(chunk)
   };
 
   function write(data) {
@@ -22,10 +22,12 @@ function createParseStream() {
 
     if (keyword === 'Host') {
       handle(queued)
-      queued = { Host: args }
+      queued = {
+        keywords: { Host: args }
+      }
     }
 
-    queued[keyword] = args
+    queued.keywords[keyword] = args
   };
 
   function end() {
@@ -55,12 +57,12 @@ function createStringifyStream(opts) {
     }).join(' ') + '\n'
   };
 
-  function write(data) {
-    stream.queue(formatted('Host', data.Host))
+  function write(chunk) {
+    stream.queue(formatted('Host', chunk.keywords.Host))
 
-    Object.keys(data).forEach(function(key) {
+    Object.keys(chunk.keywords).forEach(function(key) {
       if (key === 'Host') return
-      stream.queue(indent + formatted(key, data[key]))
+      stream.queue(indent + formatted(key, chunk.keywords[key]))
     })
 
     stream.queue('\n')

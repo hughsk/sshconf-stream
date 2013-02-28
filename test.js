@@ -15,16 +15,16 @@ test('simple parsing test', function(t) {
   var stream = ssh.parse()
 
   stream.on('data', function(host) {
-    t.equal(host.Host.length, 1)
-    t.equal(host.HostName.length, 1)
-    t.equal(host.IdentityFile.length, 1)
-    t.equal(host.RemoteForward.length, 2)
+    t.equal(host.keywords.Host.length, 1)
+    t.equal(host.keywords.HostName.length, 1)
+    t.equal(host.keywords.IdentityFile.length, 1)
+    t.equal(host.keywords.RemoteForward.length, 2)
 
-    t.equal(host.Host[0], 'test-server')
-    t.equal(host.HostName[0], 'localhost:8430')
-    t.equal(host.IdentityFile[0], '~/.ssh/identity.pem')
-    t.equal(host.RemoteForward[0], '8080')
-    t.equal(host.RemoteForward[1], 'example.com:8081')
+    t.equal(host.keywords.Host[0], 'test-server')
+    t.equal(host.keywords.HostName[0], 'localhost:8430')
+    t.equal(host.keywords.IdentityFile[0], '~/.ssh/identity.pem')
+    t.equal(host.keywords.RemoteForward[0], '8080')
+    t.equal(host.keywords.RemoteForward[1], 'example.com:8081')
   })
 
   stream.end(input)
@@ -45,17 +45,25 @@ test('handles multiple hosts', function(t) {
   ].join('\n')
 
   var expected = [{
-    Host: ['test1']
-  , HostName: ['localhost:1111']
+    keywords: {
+      Host: ['test1']
+    , HostName: ['localhost:1111']
+    }
   }, {
-    Host: ['test2']
-  , HostName: ['localhost:2222']
-  , IdentityFile: ['~/.ssh/identity.pem']
+    keywords: {
+      Host: ['test2']
+    , HostName: ['localhost:2222']
+    , IdentityFile: ['~/.ssh/identity.pem']
+    }
   }, {
-    Host: ['test3']
+    keywords: {
+      Host: ['test3']
+    }
   }, {
-    Host: ['test4']
-  , HostName: ['localhost:4444']
+    keywords: {
+      Host: ['test4']
+    , HostName: ['localhost:4444']
+    }
   }]
 
   var stream = ssh.parse()
