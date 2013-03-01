@@ -62,13 +62,15 @@ function createParseStream() {
   return pipeline(split('\n'), stream = through(write, end))
 };
 
-function createStringifyStream(opts) {
-  var stream
-    , opts = opts || {}
+function stringifyHost(keywords, opts) {
+  var opts = opts || {}
     , indent = opts.indent || '\t'
     , alwaysQuote = opts.alwaysQuote
+    , buffer = ''
 
   function formatted(key, values) {
+    values = Array.isArray(values) ? values : [values]
+
     return key + ' ' + values.map(function(val) {
       if (alwaysQuote || val.match(/"|\s/g)) {
         val = val.replace(/"/g, '\\"')
@@ -78,15 +80,22 @@ function createStringifyStream(opts) {
     }).join(' ') + '\n'
   };
 
+  if (keywords.Host) buffer += formatted('Host', keywords.Host)
+
+  Object.keys(keywords).forEach(function(key) {
+    if (key === 'Host') return
+    buffer += indent + formatted(key, keywords[key])
+  })
+
+  return buffer
+};
+
+function createStringifyStream(opts) {
+  var stream
+    , opts = opts || {}
+
   function write(chunk) {
-    stream.queue(formatted('Host', chunk.keywords.Host))
-
-    Object.keys(chunk.keywords).forEach(function(key) {
-      if (key === 'Host') return
-      stream.queue(indent + formatted(key, chunk.keywords[key]))
-    })
-
-    stream.queue('\n')
+    stream.queue(stringifyHost(chunk.keywords, opts) + '\n')
   };
 
   return stream = through(write)
@@ -95,9 +104,9 @@ function createStringifyStream(opts) {
 var ssh = module.exports = createParseStream
 
 ssh.createParseStream =
-ssh.parse =
 createParseStream
 
 ssh.createStringifyStream =
-ssh.stringify =
 createStringifyStream
+
+ssh.stringify = stringifyHost

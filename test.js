@@ -12,7 +12,7 @@ test('simple parsing test', function(t) {
   , 'RemoteForward 8080 example.com:8081'
   ].join('\n')
 
-  var stream = ssh.parse()
+  var stream = ssh.createParseStream()
 
   stream.on('data', function(host) {
     t.equal(host.keywords.Host.length, 1)
@@ -78,7 +78,7 @@ test('handles multiple hosts', function(t) {
     }
   }]
 
-  var stream = ssh.parse()
+  var stream = ssh.createParseStream()
     , n = 0
 
   t.plan(expected.length)
@@ -99,7 +99,7 @@ test('file "head" included in first host raw', function(t) {
   , 'Host two'
   ].join('\n')
 
-  var stream = ssh.parse()
+  var stream = ssh.createParseStream()
 
   t.plan(1)
 
