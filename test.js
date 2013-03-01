@@ -101,6 +101,8 @@ test('file "head" included in first host raw', function(t) {
 
   var stream = ssh.parse()
 
+  t.plan(1)
+
   stream.once('data', function(host) {
     t.equal(host.raw, '# head line #\nHost one\n')
   })
