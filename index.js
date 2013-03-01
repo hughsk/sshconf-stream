@@ -6,32 +6,53 @@ var pipeline = require('stream-combiner')
 function createParseStream() {
   var stream
     , queued = {}
+    , lineNumber = -1
+    , head = false
+    , raw = ''
 
-  function handle(chunk) {
-    if (!chunk || !Object.keys(chunk).length) return
+  function handleHost(chunk) {
+    if (!head) return head = true
+
+    if (!chunk || !Object.keys(chunk).length) return raw = ''
+
+    chunk.raw = raw
+    chunk.finish = lineNumber - 1
     stream.queue(chunk)
+    raw = ''
+  };
+
+  function handleRaw(chunk) {
+    raw += chunk + '\n'
+    return !stream.paused
   };
 
   function write(data) {
-    if (!data) return !this.paused
-    if (!data.match(/\S/g)) return !this.paused
-    if (data.match(/^\s*?\#/g)) return !this.paused
+    lineNumber += 1
+
+    if (!data) return handleRaw(data)
+    if (!data.match(/\S/g)) return handleRaw(data)
+    if (data.match(/^\s*?\#/g)) return handleRaw(data)
 
     var args = shell.parse(data)
       , keyword = args.shift()
 
     if (keyword === 'Host') {
-      handle(queued)
+      handleHost(queued)
       queued = {
+        type: 'host',
+        start: lineNumber,
         keywords: { Host: args }
       }
     }
+
+    raw += data + '\n'
 
     queued.keywords[keyword] = args
   };
 
   function end() {
-    handle(queued)
+    lineNumber += 1
+    handleHost(queued)
     stream.emit('end')
     process.nextTick(function() {
       stream.emit('close')

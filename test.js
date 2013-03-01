@@ -45,21 +45,33 @@ test('handles multiple hosts', function(t) {
   ].join('\n')
 
   var expected = [{
+    type: 'host',
+    start: 1,
+    finish: 3,
     keywords: {
       Host: ['test1']
     , HostName: ['localhost:1111']
     }
   }, {
+    type: 'host',
+    start: 4,
+    finish: 6,
     keywords: {
       Host: ['test2']
     , HostName: ['localhost:2222']
     , IdentityFile: ['~/.ssh/identity.pem']
     }
   }, {
+    type: 'host',
+    start: 7,
+    finish: 7,
     keywords: {
       Host: ['test3']
     }
   }, {
+    type: 'host',
+    start: 8,
+    finish: 9,
     keywords: {
       Host: ['test4']
     , HostName: ['localhost:4444']
@@ -72,8 +84,25 @@ test('handles multiple hosts', function(t) {
   t.plan(expected.length)
 
   stream.on('data', function(host) {
+    delete host.raw
     t.deepEqual(host, expected[n])
     n += 1
+  })
+
+  stream.end(input)
+})
+
+test('file "head" included in first host raw', function(t) {
+  var input = [
+    '# head line #'
+  , 'Host one'
+  , 'Host two'
+  ].join('\n')
+
+  var stream = ssh.parse()
+
+  stream.once('data', function(host) {
+    t.equal(host.raw, '# head line #\nHost one\n')
   })
 
   stream.end(input)
