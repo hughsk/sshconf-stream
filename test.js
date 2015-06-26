@@ -109,3 +109,20 @@ test('file "head" included in first host raw', function(t) {
 
   stream.end(input)
 })
+
+test('parameters before a first host', function(t) {
+  var input = [
+    'ForwardAgent no'
+  , 'Host one'
+  ].join('\n')
+
+  var stream = ssh.createParseStream()
+
+  t.plan(1)
+
+  stream.once('data', function(host) {
+    t.equal(host.raw, 'ForwardAgent no\nHost one\n')
+  })
+
+  stream.end(input)
+})
