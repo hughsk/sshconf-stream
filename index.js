@@ -5,7 +5,7 @@ var pipeline = require('stream-combiner')
 
 function createParseStream() {
   var stream
-    , queued = {}
+    , queued = { keywords: { } }
     , lineNumber = -1
     , head = false
     , raw = ''
