@@ -1,3 +1,5 @@
+// Forked from https://github.com/hughsk/sshconf-stream
+
 var pipeline = require('stream-combiner')
   , through = require('through')
   , shell = require('shell-quote')
@@ -36,7 +38,7 @@ function createParseStream() {
     var args = shell.parse(data)
       , keyword = args.shift()
 
-    if (keyword === 'Host') {
+    if (keyword === 'Host' || keyword === 'host') {
       handleHost(queued)
       queued = {
         type: 'host',
@@ -47,7 +49,36 @@ function createParseStream() {
 
     raw += data + '\n'
 
-    queued.keywords[keyword] = args
+    if ([
+        'DynamicForward',
+        'IdentityFile',
+        'LocalForward',
+        'RemoteForward',
+        'SendEnv'
+    ].indexOf(keyword) !== -1) {
+        // Multiple times.
+        if (queued.keywords[keyword]) {
+            // More than two times.
+            if (Array.isArray(queued.keywords[keyword][0])) {
+              queued.keywords[keyword].push(args);
+            }
+            // Second time.
+            else {
+              queued.keywords[keyword] = [
+                queued.keywords[keyword],
+                args
+              ];
+            }
+        }
+        // First time.
+        else {
+            queued.keywords[keyword] = args;
+        }
+    }
+    else {
+        queued.keywords[keyword] = args;
+    }
+
   };
 
   function end() {

@@ -92,6 +92,64 @@ test('handles multiple hosts', function(t) {
   stream.end(input)
 })
 
+test ('handles config options that can legitimately take multiple values', function(t) {
+    var input = [
+    ''
+  , 'Host test1'
+  , 'HostName localhost:1111'
+  , ''
+  , 'Host test2'
+  , 'HostName localhost:2222'
+  , '  IdentityFile ~/.ssh/identity.pem'
+  , '  IdentityFile ~/.ssh/identity2.pem',
+  , '  LocalForward 4242 example.com:4242'
+  , '  LocalForward 4243 example.com 4243'
+  , 'Host test3'
+  , '\tHost test4'
+  , 'HostName localhost:4444'
+  ].join('\n')
+    var expected = [{
+    type: 'host',
+    start: 1,
+    finish: 3,
+    keywords: {
+      Host: ['test1']
+    , HostName: ['localhost:1111']
+    }
+  }, {
+    type: 'host',
+    start: 4,
+    finish: 6,
+    keywords: {
+      Host: ['test2']
+    , HostName: ['localhost:2222']
+    , IdentityFile: [ 
+        [ '~/.ssh/identity.pem' ],
+        [ '~/.ssh/identity2.pem' ]
+      ]
+    , LocalForward: [
+      [ '4242', 'example.com:4242' ],
+      [ '4243', 'example.com:4243' ]
+    ]
+    }
+  }, {
+    type: 'host',
+    start: 7,
+    finish: 7,
+    keywords: {
+      Host: ['test3']
+    }
+  }, {
+    type: 'host',
+    start: 8,
+    finish: 9,
+    keywords: {
+      Host: ['test4']
+    , HostName: ['localhost:4444']
+    }
+  }]
+});
+
 test('file "head" included in first host raw', function(t) {
   var input = [
     '# head line #'
